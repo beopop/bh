@@ -22,4 +22,6 @@ return [
         'App' => Illuminate\Support\Facades\App::class,
         'Route' => Illuminate\Support\Facades\Route::class,
     ],
+
+    'file_max_size_mb' => env('FILE_MAX_SIZE_MB', 5),
 ];
