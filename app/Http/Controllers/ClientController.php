@@ -109,6 +109,32 @@ class ClientController extends Controller
         return redirect()->route('clients.show', $client);
     }
 
+    public function export(Client $client)
+    {
+        $client->load('projects.tasks');
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="client_'.$client->id.'_tasks.csv"',
+        ];
+        $callback = function () use ($client) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['Project', 'Task', 'Status', 'Priority', 'Due Date']);
+            foreach ($client->projects as $project) {
+                foreach ($project->tasks as $task) {
+                    fputcsv($handle, [
+                        $project->name,
+                        $task->title,
+                        $task->status,
+                        $task->priority,
+                        optional($task->due_at)->toDateString(),
+                    ]);
+                }
+            }
+            fclose($handle);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
+
     private function parseTags(string $tags): array
     {
         return array_filter(array_map('trim', explode(',', $tags)));

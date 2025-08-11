@@ -78,4 +78,27 @@ class ProjectController extends Controller
         $project->delete();
         return redirect()->route('projects.index');
     }
+
+    public function export(Project $project)
+    {
+        $project->load('tasks');
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="project_'.$project->id.'_tasks.csv"',
+        ];
+        $callback = function () use ($project) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['Task', 'Status', 'Priority', 'Due Date']);
+            foreach ($project->tasks as $task) {
+                fputcsv($handle, [
+                    $task->title,
+                    $task->status,
+                    $task->priority,
+                    optional($task->due_at)->toDateString(),
+                ]);
+            }
+            fclose($handle);
+        };
+        return response()->stream($callback, 200, $headers);
+    }
 }
