@@ -19,8 +19,10 @@ Route::get('/', function () {
 Route::get('/install', [InstallController::class, 'show'])->name('install');
 Route::post('/install', [InstallController::class, 'store']);
 
+Route::get('clients/{client}/export', [ClientController::class, 'export'])->name('clients.export');
 Route::resource('clients', ClientController::class);
 Route::post('clients/{client}/activities', [ClientController::class, 'storeActivity'])->name('clients.activities.store');
+Route::get('projects/{project}/export', [ProjectController::class, 'export'])->name('projects.export');
 Route::resource('projects', ProjectController::class);
 Route::resource('projects.tasks', TaskController::class)->except(['index', 'create', 'show']);
 Route::post('projects/{project}/tasks/{task}/comments', [TaskController::class, 'storeComment'])->name('projects.tasks.comments.store');

@@ -6,8 +6,10 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskComment;
 use App\Models\ActivityLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class TaskController extends Controller
 {
@@ -37,6 +39,14 @@ class TaskController extends Controller
             'user_id' => Auth::id(),
             'description' => 'Created task '.$task->title,
         ]);
+
+        // Notify admin and manager users about new task
+        $recipients = User::whereIn('role', ['admin', 'manager'])->pluck('email');
+        if ($recipients->isNotEmpty()) {
+            Mail::raw('New task "'.$task->title.'" created by client.', function ($message) use ($recipients) {
+                $message->to($recipients->all())->subject('New Task Created');
+            });
+        }
         return redirect()->route('projects.show', $project);
     }
 
@@ -62,6 +72,14 @@ class TaskController extends Controller
             'user_id' => Auth::id(),
             'description' => 'Updated task '.$task->title,
         ]);
+
+        // Notify client when task status or details are updated
+        $clientEmail = optional($project->client)->contact_email;
+        if ($clientEmail) {
+            Mail::raw('Task "'.$task->title.'" updated. Current status: '.$task->status.'.', function ($message) use ($clientEmail) {
+                $message->to($clientEmail)->subject('Task Updated');
+            });
+        }
         return redirect()->route('projects.show', $project);
     }
 
@@ -90,6 +108,16 @@ class TaskController extends Controller
             'user_id' => Auth::id(),
             'description' => 'Commented on task '.$task->title,
         ]);
+
+        // Notify client about new comment if posted by admin/manager
+        if (Auth::user()->role !== 'client') {
+            $clientEmail = optional($project->client)->contact_email;
+            if ($clientEmail) {
+                Mail::raw('New comment on task "'.$task->title.'": '.$data['body'], function ($message) use ($clientEmail) {
+                    $message->to($clientEmail)->subject('New Task Comment');
+                });
+            }
+        }
 
         return redirect()->route('projects.tasks.edit', [$project, $task]);
     }
