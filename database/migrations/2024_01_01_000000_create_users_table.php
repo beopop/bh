@@ -12,7 +12,8 @@ return new class extends Migration {
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->boolean('is_admin')->default(false);
+            $table->enum('role', ['admin', 'manager', 'client'])->default('client');
+            $table->string('locale')->default('en');
             $table->timestamps();
         });
     }

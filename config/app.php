@@ -15,6 +15,7 @@ return [
 
     'providers' => [
         App\Providers\RouteServiceProvider::class,
+        App\Providers\AuthServiceProvider::class,
     ],
 
     'aliases' => [
