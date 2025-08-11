@@ -34,4 +34,17 @@
     @method('DELETE')
     <button type="submit">Delete</button>
 </form>
+
+<h2>Comments</h2>
+<ul>
+    @foreach($comments as $comment)
+        <li><strong>{{ $comment->user->name }}</strong> ({{ $comment->created_at->format('Y-m-d H:i') }}): {{ $comment->body }}</li>
+    @endforeach
+</ul>
+
+<form method="post" action="{{ route('projects.tasks.comments.store', [$project, $task]) }}">
+    @csrf
+    <textarea name="body">{{ old('body') }}</textarea>
+    <button type="submit">Add Comment</button>
+</form>
 @endsection

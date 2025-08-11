@@ -22,3 +22,4 @@ Route::resource('clients', ClientController::class);
 Route::post('clients/{client}/activities', [ClientController::class, 'storeActivity'])->name('clients.activities.store');
 Route::resource('projects', ProjectController::class);
 Route::resource('projects.tasks', TaskController::class)->except(['index', 'create', 'show']);
+Route::post('projects/{project}/tasks/{task}/comments', [TaskController::class, 'storeComment'])->name('projects.tasks.comments.store');

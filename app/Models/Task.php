@@ -27,4 +27,9 @@ class Task extends Model
     {
         return $this->belongsTo(Project::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(TaskComment::class);
+    }
 }
