@@ -6,9 +6,9 @@ use Tests\TestCase;
 
 class HomeTest extends TestCase
 {
-    public function test_home_page(): void
+    public function test_redirects_to_installer_when_not_installed(): void
     {
         $response = $this->get('/');
-        $response->assertStatus(200);
+        $response->assertRedirect('/install');
     }
 }
